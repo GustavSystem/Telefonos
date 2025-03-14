@@ -7,6 +7,8 @@ environment:
   sdk: ">=2.17.0 <4.0.0"  # Actualizamos el rango para incluir versiones más recientes
 
 dependencies:
+dependencies:
+  http: ^1.0.0  # O la versión más reciente
   flutter:
     sdk: flutter
   flutter_localizations:
