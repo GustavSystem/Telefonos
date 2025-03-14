@@ -7,6 +7,7 @@ import 'package:csv/csv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:math' show min;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
