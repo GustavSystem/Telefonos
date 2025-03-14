@@ -109,12 +109,24 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
 
   Future<void> _cargarDatosCSV() async {
     try {
-      // Carga el archivo CSV desde assets
-      final data = await rootBundle.loadString('assets/MATERNO-2025.csv');
-
-      // Añadir manejo específico para web
+      String data;
+      
+      // Manejo específico para web
       if (kIsWeb) {
         print("Ejecutando en entorno web - procesando CSV");
+        try {
+          // En web, usamos una ruta relativa a la carpeta assets en la build
+          final response = await HttpClient().getUrl(Uri.parse('/assets/MATERNO-2025.csv'));
+          final httpResponse = await response.close();
+          data = await httpResponse.transform(utf8.decoder).join();
+        } catch (webError) {
+          print('Error al cargar CSV en web: $webError');
+          // Intento alternativo usando rootBundle
+          data = await rootBundle.loadString('assets/MATERNO-2025.csv');
+        }
+      } else {
+        // En dispositivos móviles, usamos rootBundle normalmente
+        data = await rootBundle.loadString('assets/MATERNO-2025.csv');
       }
 
       // Convierte el CSV a una lista de listas con manejo de errores mejorado
