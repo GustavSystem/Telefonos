@@ -134,39 +134,59 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
     
     // SECCIÓN MODIFICADA - COMIENZA AQUÍ
     // Manejo específico para web
-    if (kIsWeb) {
-     final csvString = await rootBundle.loadString('assets/MATERNO-2025.csv');
+    // SECCIÓN MODIFICADA - COMIENZA AQUÍ
+  // Manejo específico para web
+  if (kIsWeb) {
+    try {
+      // Opción 1: Carga directa con URL completa
+      final response = await http.get(Uri.parse('https://gustavsystem.github.io/Telefonos/assets/MATERNO-2025.csv'));
       
+      if (response.statusCode == 200) {
+        print("CSV cargado correctamente desde URL completa");
+        data = response.body;
+      } else {
+        throw Exception('No se pudo cargar el archivo CSV');
+      }
+    } catch (error1) {
       try {
-        // Usa una ruta relativa que incluya el subdirectorio de GitHub Pages
-        final response = await http.get(Uri.parse('https://gustavsystem.github.io/Telefonos/assets/MATERNO-2025.csv'));
+        // Opción 2: Intenta con ruta relativa al dominio
+        final response = await http.get(Uri.parse('/Telefonos/assets/MATERNO-2025.csv'));
         
         if (response.statusCode == 200) {
-          print("CSV cargado correctamente desde URL");
+          print("CSV cargado correctamente desde ruta relativa");
           data = response.body;
-          
-          // Convertir el CSV real
-          try {
-            List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
-            if (datosReales.isNotEmpty) {
-              print("CSV real convertido correctamente con ${datosReales.length} registros");
-              listaCSV = datosReales;
-            }
-          } catch (csvError) {
-            print('Error al convertir CSV real: $csvError - usando datos de prueba');
-            listaCSV = List.from(datosPrueba);
-          }
         } else {
-          print('Error HTTP al cargar CSV: ${response.statusCode} - usando datos de prueba');
+          throw Exception('No se pudo cargar el archivo CSV');
+        }
+      } catch (error2) {
+        try {
+          // Opción 3: Intenta con rootBundle
+          final csvString = await rootBundle.loadString('assets/MATERNO-2025.csv');
+          print("CSV cargado correctamente desde assets");
+          data = csvString;
+        } catch (error3) {
+          print("Error al cargar CSV por cualquier método - usando datos de prueba");
           listaCSV = List.from(datosPrueba);
         }
-      } catch (webError) {
-        print('Error al cargar CSV en web: $webError - usando datos de prueba');
+      }
+    }
+    
+    // Si llegamos aquí y tenemos datos, intenta convertirlos
+    if (data != null && data.isNotEmpty && listaCSV.isEmpty) {
+      try {
+        List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
+        if (datosReales.isNotEmpty) {
+          print("CSV real convertido correctamente con ${datosReales.length} registros");
+          listaCSV = datosReales;
+        }
+      } catch (csvError) {
+        print("Error al convertir CSV real: $csvError - usando datos de prueba");
         listaCSV = List.from(datosPrueba);
       }
-    } else {
-      // En dispositivos móviles, usamos rootBundle normalmente
-      data = await rootBundle.loadString('assets/MATERNO-2025.csv');
+    }
+  } else {
+    // En dispositivos móviles, usamos rootBundle normalmente
+    data = await rootBundle.loadString('assets/MATERNO-2025.csv');
       
       // Convierte el CSV a una lista de listas con manejo de errores mejorado
       try {
