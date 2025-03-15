@@ -58,7 +58,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   @override
 void initState() {
   super.initState();
-  print("🔄 Iniciando la carga del CSV...");  // Agrega este print
+  debugprint("🔄 Iniciando la carga del CSV...");  // Agrega este print
   _cargarDatosCSV();
 }
 
@@ -107,19 +107,19 @@ void initState() {
   }
 
   Future<void> _cargarDatosCSV() async {
-   print("📥 _cargarDatosCSV() fue llamada correctamente"); 
+   debugprint("📥 _cargarDatosCSV() fue llamada correctamente"); 
   const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
 
   try {
     final response = await http.get(Uri.parse("https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv"));
-print("📡 Código HTTP: ${response.statusCode}");
-print("📄 Contenido del CSV (primeros 100 caracteres): ${response.body.substring(0, 100)}");
+debugprint("📡 Código HTTP: ${response.statusCode}");
+debugprint("📄 Contenido del CSV (primeros 100 caracteres): ${response.body.substring(0, 100)}");
     if (response.statusCode != 200) {
       throw Exception("❌ Error al cargar CSV: Código ${response.statusCode}");
     }
 
     final decoded = utf8.decode(response.bodyBytes);
-    print("📄 Contenido del CSV:\n$decoded");  
+    debugprint("📄 Contenido del CSV:\n$decoded");  
 
     List<List<dynamic>> csvData = const CsvToListConverter().convert(decoded);
     print("✅ Datos procesados: ${csvData.length} filas");
