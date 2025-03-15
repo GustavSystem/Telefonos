@@ -135,7 +135,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
     // SECCIÓN MODIFICADA - COMIENZA AQUÍ
     // Manejo específico para web
     if (kIsWeb) {
-      print("Ejecutando en entorno web - intentando cargar CSV real primero");
+      final response = await http.get(Uri.parse('https://gustavsystem.github.io/Telefonos/assets/MATERNO-2025.csv'));
       
       try {
         // Usa una ruta relativa que incluya el subdirectorio de GitHub Pages
