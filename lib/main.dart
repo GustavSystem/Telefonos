@@ -155,10 +155,10 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         final response = await http.get(Uri.parse('/Telefonos/assets/MATERNO-2025.csv'));
         
         if (response.statusCode == 200) {
-          print("CSV cargado correctamente desde ruta relativa");
-          data = response.body;
+           final decoded = utf8.decode(response.bodyBytes);
+           print("📄 Contenido del CSV:\n$decoded");  // ✅ Agrega esto
         } else {
-          throw Exception('No se pudo cargar el archivo CSV');
+          print("❌ Error al obtener el CSV: ${response.statusCode}");
         }
       } catch (error2) {
         try {
