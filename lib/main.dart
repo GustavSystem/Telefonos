@@ -56,13 +56,11 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   ScrollController _scrollController = ScrollController(); // Controlador para detectar scroll
 
   @override
-  void initState() {
-    super.initState();
-    _cargarDatosCSV();
-    
-    // Añadir listener al controlador de scroll
-    _scrollController.addListener(_scrollListener);
-  }
+void initState() {
+  super.initState();
+  print("🔄 Iniciando la carga del CSV...");  // Agrega este print
+  _cargarDatosCSV();
+}
 
   @override
   void dispose() {
@@ -109,6 +107,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   }
 
   Future<void> _cargarDatosCSV() async {
+   print("📥 _cargarDatosCSV() fue llamada correctamente"); 
   const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
 
   try {
