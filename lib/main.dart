@@ -111,8 +111,9 @@ void initState() {
   const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
 
   try {
-    final response = await http.get(Uri.parse(url));
-
+    final response = await http.get(Uri.parse("https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv"));
+print("📡 Código HTTP: ${response.statusCode}");
+print("📄 Contenido del CSV (primeros 100 caracteres): ${response.body.substring(0, 100)}");
     if (response.statusCode != 200) {
       throw Exception("❌ Error al cargar CSV: Código ${response.statusCode}");
     }
