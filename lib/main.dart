@@ -135,13 +135,11 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
     // SECCIÓN MODIFICADA - COMIENZA AQUÍ
     // Manejo específico para web
     if (kIsWeb) {
-      final csvString = await rootBundle.loadString('assets/MATERNO-2025.csv');
-    print("CSV cargado correctamente desde assets");
-    data = csvString;
+     final csvString = await rootBundle.loadString('assets/MATERNO-2025.csv');
       
       try {
         // Usa una ruta relativa que incluya el subdirectorio de GitHub Pages
-        final response = await http.get(Uri.parse('./assets/MATERNO-2025.csv'));
+        final response = await http.get(Uri.parse('https://gustavsystem.github.io/Telefonos/assets/MATERNO-2025.csv'));
         
         if (response.statusCode == 200) {
           print("CSV cargado correctamente desde URL");
