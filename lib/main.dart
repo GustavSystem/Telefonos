@@ -150,6 +150,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
       }
     } catch (error1) {
       try {
+        const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
         // Opción 2: Intenta con ruta relativa al dominio
         final response = await http.get(Uri.parse('/Telefonos/assets/MATERNO-2025.csv'));
         
