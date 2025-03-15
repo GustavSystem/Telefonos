@@ -109,6 +109,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   }
 
   Future<void> _cargarDatosCSV() async {
+    https://raw.githubusercontent.com/GustavSystem/Telefonos/refs/heads/main/lib/main.dart
   try {
     // Datos de prueba para la versión web
     List<List<dynamic>> datosPrueba = [
@@ -139,11 +140,11 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   if (kIsWeb) {
     try {
       // Opción 1: Carga directa con URL completa
-      final response = await http.get(Uri.parse('https://gustavsystem.github.io/Telefonos/assets/MATERNO-2025.csv'));
+      final response = await http.get(Uri.parse(url));
       
       if (response.statusCode == 200) {
-        print("CSV cargado correctamente desde URL completa");
-        data = response.body;
+        final decoded = utf8.decode(response.bodyBytes);
+        List<List<dynamic>> csvData = const CsvToListConverter().convert(decoded);
       } else {
         throw Exception('No se pudo cargar el archivo CSV');
       }
