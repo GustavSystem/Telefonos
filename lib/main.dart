@@ -109,111 +109,40 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
   }
 
   Future<void> _cargarDatosCSV() async {
-    https://raw.githubusercontent.com/GustavSystem/Telefonos/refs/heads/main/lib/main.dart
-  try {
-    // Datos de prueba para la versión web
-    List<List<dynamic>> datosPrueba = [
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 1", "ADMISIÓN", "5001", "922123456"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 1", "URGENCIAS", "5002", "922123457"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "CONSULTAS EXTERNAS", "5003", "922123458"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "PEDIATRÍA", "5004", "922123459"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 3", "GINECOLOGÍA", "5005", "922123460"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 3", "OBSTETRICIA", "5006", "922123461"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 4", "NEONATOLOGÍA", "5007", "922123462"],
-      ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 4", "UCI NEONATAL", "5008", "922123463"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA BAJA", "CAFETERÍA", "5009", "922123464"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA BAJA", "FARMACIA", "5010", "922123465"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA 1", "ADMINISTRACIÓN", "5011", "922123466"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA 1", "RECURSOS HUMANOS", "5012", "922123467"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA 2", "LABORATORIO", "5013", "922123468"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA 2", "RADIOLOGÍA", "5014", "922123469"],
-      ["MATERNO", "EDIFICIO ANEXO", "PLANTA 3", "QUIRÓFANOS", "5015", "922123470"],
-    ];
-    
-    String data;
-    List<List<dynamic>> listaCSV = [];
-    
-    // SECCIÓN MODIFICADA - COMIENZA AQUÍ
-    // Manejo específico para web
-    // SECCIÓN MODIFICADA - COMIENZA AQUÍ
-  // Manejo específico para web
-  if (kIsWeb) {
-    try {
-      // Opción 1: Carga directa con URL completa
-      final response = await http.get(Uri.parse(url));
-      
-      if (response.statusCode == 200) {
-        final decoded = utf8.decode(response.bodyBytes);
-        List<List<dynamic>> csvData = const CsvToListConverter().convert(decoded);
-      } else {
-        throw Exception('No se pudo cargar el archivo CSV');
-      }
-    } catch (error1) {
-      try {
-        const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
-        // Opción 2: Intenta con ruta relativa al dominio
-        final response = await http.get(Uri.parse('/Telefonos/assets/MATERNO-2025.csv'));
-        
-        if (response.statusCode == 200) {
-           final decoded = utf8.decode(response.bodyBytes);
-           print("📄 Contenido del CSV:\n$decoded");  // ✅ Agrega esto
-        } else {
-          print("❌ Error al obtener el CSV: ${response.statusCode}");
-        }
-      } catch (error2) {
-        try {
-          // Opción 3: Intenta con rootBundle
-          final csvString = await rootBundle.loadString('assets/MATERNO-2025.csv');
-          print("CSV cargado correctamente desde assets");
-          data = csvString;
-        } catch (error3) {
-          print("Error al cargar CSV por cualquier método - usando datos de prueba");
-          listaCSV = List.from(datosPrueba);
-        }
-      }
-    }
-    
-    // Si llegamos aquí y tenemos datos, intenta convertirlos
-    if (data != null && data.isNotEmpty && listaCSV.isEmpty) {
-      try {
-        List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
-        if (datosReales.isNotEmpty) {
-          print("CSV real convertido correctamente con ${datosReales.length} registros");
-          listaCSV = datosReales;
-        }
-      } catch (csvError) {
-        print("Error al convertir CSV real: $csvError - usando datos de prueba");
-        listaCSV = List.from(datosPrueba);
-      }
-    }
-  } else {
-    // En dispositivos móviles, usamos rootBundle normalmente
-    data = await rootBundle.loadString('assets/MATERNO-2025.csv');
-      
-      // Convierte el CSV a una lista de listas con manejo de errores mejorado
-      try {
-        listaCSV = const CsvToListConverter().convert(data);
-      } catch (csvError) {
-        print('Error al convertir CSV: $csvError');
-        // Intenta un enfoque alternativo para archivos grandes
-        listaCSV = _procesarCSVManualmente(data);
-      }
-    }
-    // SECCIÓN MODIFICADA - TERMINA AQUÍ
+  const String url = "https://raw.githubusercontent.com/GustavSystem/Telefonos/main/assets/MATERNO-2025.csv";
 
-    print("Datos cargados: ${listaCSV.length} registros");
+  try {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode != 200) {
+      throw Exception("❌ Error al cargar CSV: Código ${response.statusCode}");
+    }
+
+    final decoded = utf8.decode(response.bodyBytes);
+    print("📄 Contenido del CSV:\n$decoded");  
+
+    List<List<dynamic>> csvData = const CsvToListConverter().convert(decoded);
+    print("✅ Datos procesados: ${csvData.length} filas");
+
+    if (csvData.isEmpty) throw Exception("❌ El CSV está vacío.");
 
     setState(() {
-      _datosCSV = listaCSV;
-      _datosFiltrados = listaCSV;
-      
-      // Inicializar la lista de datos mostrados con los primeros registros
+      _datosCSV = csvData;
+      _datosFiltrados = csvData;
       _datosMostrados = _datosFiltrados.length > _registrosPorCarga 
           ? _datosFiltrados.sublist(0, _registrosPorCarga) 
           : List.from(_datosFiltrados);
-          
       _cargando = false;
     });
+
+  } catch (e) {
+    print("🔥 Error al cargar CSV: $e");
+    setState(() {
+      _cargando = false;
+    });
+  }
+}
+
 
   } catch (e) {
     print('🔥 Error al cargar CSV: $e');
