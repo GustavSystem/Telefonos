@@ -33,14 +33,50 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
-      - name: Copy assets
-        run: |
-          mkdir -p build/web/assets
-          cp -r assets/* build/web/assets/ || true
-          cp MATERNO-2025.csv build/web/ || true
-        
       - name: Build web
         run: flutter build web --base-href /Telefonos/
+        
+      - name: Prepare web assets
+        run: |
+          # Asegurar que el CSV esté disponible en la carpeta web
+          cp -f MATERNO-2025.csv build/web/ || true
+          cp -f assets/MATERNO-2025.csv build/web/assets/ || true
+          
+          # Crear manifest.json si no existe
+          if [ ! -f "build/web/manifest.json" ]; then
+            echo '{
+              "name": "Telefonos Hospital",
+              "short_name": "Telefonos",
+              "start_url": ".",
+              "display": "standalone",
+              "background_color": "#0175C2",
+              "theme_color": "#0175C2",
+              "description": "Directorio telefónico para el Hospital Materno Infantil e Insular",
+              "orientation": "portrait-primary",
+              "prefer_related_applications": false,
+              "icons": [
+                {
+                  "src": "icons/Icon-192.png",
+                  "sizes": "192x192",
+                  "type": "image/png"
+                },
+                {
+                  "src": "icons/Icon-512.png",
+                  "sizes": "512x512",
+                  "type": "image/png"
+                }
+              ]
+            }' > build/web/manifest.json
+          fi
+          
+          # Crear favicon.png si no existe
+          if [ ! -f "build/web/favicon.png" ]; then
+            # Copiar de web/favicon.png si existe
+            cp -f web/favicon.png build/web/ || true
+          fi
+          
+          # Crear archivo .nojekyll para evitar procesamiento Jekyll
+          touch build/web/.nojekyll
         
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
