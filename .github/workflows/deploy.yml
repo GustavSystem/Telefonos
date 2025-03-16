@@ -26,7 +26,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0'  # Versión que funciona con tus dependencias
+          flutter-version: '3.19.3'  # Versión actualizada que incluye Dart SDK 3.4.0+
           channel: 'stable'
       
       - name: Get dependencies
