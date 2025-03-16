@@ -192,28 +192,43 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         print("Ejecutando en entorno web - usando datos de prueba iniciales");
 
         // Usar datos de prueba para la versión web inicialmente
-        listaCSV = List.from(datosPrueba);
+        listaCSV = List.from(_datosCSV); // Usar los datos de prueba ya definidos en initState
         print("Datos de prueba cargados: ${listaCSV.length} registros");
 
-        // Intentar cargar el CSV real
+        // Intentar cargar el CSV real solo si estamos en producción
         try {
-          // Obtener la URL base
+          // Obtener la URL base con mejor detección
           String baseUrl = '';
           try {
             final currentUrl = Uri.base.toString();
-            baseUrl = currentUrl.contains('github.io') 
-                ? 'https://gustavsystem.github.io/Telefonos/' 
-                : '';
+            print('URL actual: $currentUrl');
+            
+            // Mejorar la detección de la URL base
+            if (currentUrl.contains('github.io')) {
+              // Estamos en GitHub Pages
+              baseUrl = 'https://gustavsystem.github.io/Telefonos/';
+            } else if (currentUrl.contains('localhost') || currentUrl.contains('127.0.0.1')) {
+              // Estamos en desarrollo local
+              baseUrl = currentUrl.endsWith('/') ? currentUrl : '$currentUrl/';
+            } else {
+              // Otra ubicación web
+              final uri = Uri.parse(currentUrl);
+              baseUrl = '${uri.scheme}://${uri.authority}${uri.path.endsWith('/') ? uri.path : '${uri.path}/'}';
+            }
             print('URL base detectada: $baseUrl');
           } catch (e) {
             print('Error al obtener la ubicación: $e');
           }
           
-          // Lista de posibles ubicaciones del archivo
+          // Lista de posibles ubicaciones del archivo con más opciones
           List<String> posiblesRutas = [
             '${baseUrl}assets/MATERNO-2025.csv',
             '${baseUrl}MATERNO-2025.csv',
-            '${baseUrl}data/MATERNO-2025.csv'
+            '${baseUrl}data/MATERNO-2025.csv',
+            '${baseUrl}docs/MATERNO-2025.csv',
+            '${baseUrl}docs/assets/MATERNO-2025.csv',
+            './MATERNO-2025.csv',
+            './assets/MATERNO-2025.csv'
           ];
           
           bool archivoEncontrado = false;
