@@ -14,9 +14,15 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,6 +32,12 @@ jobs:
       
       - name: Get dependencies
         run: flutter pub get
+        
+      - name: Copy assets
+        run: |
+          mkdir -p build/web/assets
+          cp -r assets/* build/web/assets/ || true
+          cp MATERNO-2025.csv build/web/ || true
         
       - name: Build web
         run: flutter build web --base-href /Telefonos/
