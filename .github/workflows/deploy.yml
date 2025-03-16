@@ -5,16 +5,8 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-# Establece permisos para el token GITHUB_TOKEN
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-# Evitar ejecuciones simultáneas
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -23,19 +15,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      
-      # Configurar Git
-      - name: Setup Git
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0'  # Versión específica que funciona con tus dependencias
+          flutter-version: '3.0.0'  # Usar exactamente la misma versión que tienes localmente
           channel: 'stable'
       
       - name: Get dependencies
@@ -44,34 +28,15 @@ jobs:
       - name: Build web
         run: flutter build web --base-href /Telefonos/
         
-      - name: Prepare web assets
+      - name: Copy assets
         run: |
-          # Verificar la estructura de directorios
-          ls -la build/web/
-          
-          # Asegurar que el manifest.json esté en la carpeta correcta
-          cp -f web/manifest.json build/web/ || true
-          
-          # Verificar que flutter_bootstrap.js existe
-          if [ ! -f "build/web/flutter_bootstrap.js" ]; then
-            echo "// Bootstrap script for Flutter web" > build/web/flutter_bootstrap.js
-          fi
-          
-          # Copiar el CSV
           cp -f MATERNO-2025.csv build/web/ || true
           mkdir -p build/web/assets
           cp -f assets/MATERNO-2025.csv build/web/assets/ || true
-          
-          # Crear archivo .nojekyll
           touch build/web/.nojekyll
-          
-          # Listar archivos para verificar
-          echo "Contenido de build/web:"
-          ls -la build/web/
         
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           branch: gh-pages
-          clean: true
