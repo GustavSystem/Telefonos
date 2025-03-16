@@ -11,12 +11,14 @@ permissions:
   pages: write
   id-token: write
 
+# Evitar ejecuciones simultáneas
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
 
     steps:
       - name: Checkout
