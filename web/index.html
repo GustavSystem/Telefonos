@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- Mantener esta línea exactamente como está -->
   <base href="$FLUTTER_BASE_HREF">
   
   <meta charset="UTF-8">
@@ -17,15 +16,42 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <!-- Usar ruta relativa simple -->
-  <link rel="manifest" href="manifest.json">
+  <!-- Script para manejar rutas en GitHub Pages -->
+  <script>
+    // Detectar si estamos en GitHub Pages y ajustar rutas si es necesario
+    if (window.location.hostname.includes('github.io')) {
+      // Asegurarse de que las rutas sean correctas para GitHub Pages
+      var basePath = '/Telefonos/';
+      document.write('<link rel="manifest" href="' + basePath + 'manifest.json">');
+    } else {
+      // Comportamiento normal para desarrollo local
+      document.write('<link rel="manifest" href="manifest.json">');
+    }
+  </script>
 
   <script>
     // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
   </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
+  
+  <!-- Script para cargar flutter.js con manejo de errores -->
+  <script>
+    // Intentar cargar flutter.js con manejo de errores
+    function loadFlutterScript() {
+      var script = document.createElement('script');
+      script.src = 'flutter.js';
+      script.defer = true;
+      script.onerror = function() {
+        console.error('Error cargando flutter.js, intentando con ruta alternativa');
+        var altScript = document.createElement('script');
+        altScript.src = '/Telefonos/flutter.js';
+        altScript.defer = true;
+        document.head.appendChild(altScript);
+      };
+      document.head.appendChild(script);
+    }
+    loadFlutterScript();
+  </script>
 </head>
 <body>
   <script>
