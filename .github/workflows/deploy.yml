@@ -38,42 +38,28 @@ jobs:
         
       - name: Prepare web assets
         run: |
-          # Asegurar que el CSV esté disponible en la carpeta web
-          cp -f MATERNO-2025.csv build/web/ || true
+          # Verificar la estructura de directorios
+          ls -la build/web/
+          
+          # Asegurar que el manifest.json esté en la carpeta correcta
+          cp -f web/manifest.json build/web/
+          
+          # Verificar que flutter_bootstrap.js existe
+          if [ ! -f "build/web/flutter_bootstrap.js" ]; then
+            echo "// Bootstrap script for Flutter web" > build/web/flutter_bootstrap.js
+          fi
+          
+          # Copiar el CSV
+          cp -f MATERNO-2025.csv build/web/
+          mkdir -p build/web/assets
           cp -f assets/MATERNO-2025.csv build/web/assets/ || true
           
-          # Crear manifest.json si no existe
-          if [ ! -f "build/web/manifest.json" ]; then
-            echo '{
-              "name": "Telefonos Hospital",
-              "short_name": "Telefonos",
-              "start_url": ".",
-              "display": "standalone",
-              "background_color": "#0175C2",
-              "theme_color": "#0175C2",
-              "description": "Directorio telefónico para el Hospital Materno Infantil e Insular",
-              "orientation": "portrait-primary",
-              "prefer_related_applications": false,
-              "icons": [
-                {
-                  "src": "icons/Icon-192.png",
-                  "sizes": "192x192",
-                  "type": "image/png"
-                },
-                {
-                  "src": "icons/Icon-512.png",
-                  "sizes": "512x512",
-                  "type": "image/png"
-                }
-              ]
-            }' > build/web/manifest.json
-          fi
+          # Crear archivo .nojekyll
+          touch build/web/.nojekyll
           
-          # Crear favicon.png si no existe
-          if [ ! -f "build/web/favicon.png" ]; then
-            # Copiar de web/favicon.png si existe
-            cp -f web/favicon.png build/web/ || true
-          fi
+          # Listar archivos para verificar
+          echo "Contenido de build/web:"
+          ls -la build/web/
           
           # Crear archivo .nojekyll para evitar procesamiento Jekyll
           touch build/web/.nojekyll
