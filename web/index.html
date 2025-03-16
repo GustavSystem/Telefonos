@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- Mantener esta línea exactamente como está -->
   <base href="$FLUTTER_BASE_HREF">
   
   <meta charset="UTF-8">
@@ -16,29 +17,29 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <!-- Manejo mejorado de rutas para GitHub Pages -->
+  <!-- Script para corregir rutas en GitHub Pages -->
   <script>
-    // Función para determinar la ruta base
+    // Función para determinar la ruta base correcta
     function getBasePath() {
-      // Si estamos en GitHub Pages
+      // Verificar si estamos en GitHub Pages
       if (window.location.hostname.includes('github.io')) {
         return '/Telefonos/';
       }
-      // En desarrollo local
       return '/';
     }
-    
+
     // Función para cargar recursos con la ruta correcta
     function loadResource(path) {
       var basePath = getBasePath();
-      return (path.startsWith('/') ? basePath + path.substring(1) : basePath + path);
+      // Eliminar la barra inicial si existe para evitar doble barra
+      if (path.startsWith('/')) {
+        path = path.substring(1);
+      }
+      return basePath + path;
     }
-  </script>
 
-  <!-- Cargar manifest.json -->
-  <link rel="manifest" id="manifestLink">
-  <script>
-    document.getElementById('manifestLink').href = loadResource('manifest.json');
+    // Cargar manifest.json con la ruta correcta
+    document.write('<link rel="manifest" href="' + loadResource('manifest.json') + '">');
   </script>
 
   <script>
@@ -46,26 +47,50 @@
     var serviceWorkerVersion = null;
   </script>
   
-  <!-- Cargar flutter.js -->
-  <script id="flutterScript" defer></script>
+  <!-- Cargar flutter.js con la ruta correcta -->
   <script>
-    document.getElementById('flutterScript').src = loadResource('flutter.js');
+    document.write('<script src="' + loadResource('flutter.js') + '" defer><\/script>');
   </script>
 </head>
 <body>
   <script>
     window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
+      // Asegurarse de que _flutter esté definido
+      var _flutter;
+      
+      // Intentar obtener _flutter con manejo de errores
+      var maxAttempts = 10;
+      var attempts = 0;
+      
+      function tryInitFlutter() {
+        if (window._flutter) {
+          _flutter = window._flutter;
+          initFlutterApp();
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          console.log('Intentando cargar Flutter... intento ' + attempts);
+          setTimeout(tryInitFlutter, 500);
+        } else {
+          console.error('No se pudo cargar Flutter después de ' + maxAttempts + ' intentos');
         }
-      });
+      }
+      
+      function initFlutterApp() {
+        // Download main.dart.js
+        _flutter.loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          },
+          onEntrypointLoaded: function(engineInitializer) {
+            engineInitializer.initializeEngine().then(function(appRunner) {
+              appRunner.runApp();
+            });
+          }
+        });
+      }
+      
+      // Iniciar el proceso de carga
+      tryInitFlutter();
     });
   </script>
 </body>

@@ -203,10 +203,11 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
             final currentUrl = Uri.base.toString();
             print('URL actual: $currentUrl');
             
-            // Mejorar la detección de la URL base
+            // Mejorar la detección de la URL base para GitHub Pages
             if (currentUrl.contains('github.io')) {
-              // Estamos en GitHub Pages
+              // Estamos en GitHub Pages - usar ruta absoluta
               baseUrl = 'https://gustavsystem.github.io/Telefonos/';
+              print('Detectado GitHub Pages, usando URL base: $baseUrl');
             } else if (currentUrl.contains('localhost') || currentUrl.contains('127.0.0.1')) {
               // Estamos en desarrollo local
               baseUrl = currentUrl.endsWith('/') ? currentUrl : '$currentUrl/';
@@ -218,18 +219,24 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
             print('URL base detectada: $baseUrl');
           } catch (e) {
             print('Error al obtener la ubicación: $e');
+            // En caso de error, usar una URL base predeterminada para GitHub Pages
+            baseUrl = 'https://gustavsystem.github.io/Telefonos/';
+            print('Usando URL base predeterminada: $baseUrl');
           }
           
-          // Lista de posibles ubicaciones del archivo con más opciones
+          // Lista de posibles ubicaciones del archivo con más opciones y mejor manejo para GitHub Pages
           List<String> posiblesRutas = [
-            '${baseUrl}assets/MATERNO-2025.csv',
-            '${baseUrl}MATERNO-2025.csv',
-            '${baseUrl}data/MATERNO-2025.csv',
-            '${baseUrl}docs/MATERNO-2025.csv',
-            '${baseUrl}docs/assets/MATERNO-2025.csv',
-            './MATERNO-2025.csv',
-            './assets/MATERNO-2025.csv'
+            '${baseUrl}MATERNO-2025.csv',           // Directamente en la raíz
+            '${baseUrl}assets/MATERNO-2025.csv',    // En carpeta assets
+            './MATERNO-2025.csv',                   // Ruta relativa
+            './assets/MATERNO-2025.csv',            // Ruta relativa en assets
+            'MATERNO-2025.csv',                     // Nombre de archivo simple
+            'assets/MATERNO-2025.csv',              // Ruta simple
           ];
+          
+          // Imprimir todas las rutas que se intentarán
+          print('Intentando cargar CSV desde las siguientes rutas:');
+          posiblesRutas.forEach((ruta) => print('  - $ruta'));
           
           bool archivoEncontrado = false;
           
@@ -240,10 +247,16 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
             try {
               print('Intentando cargar desde: $ruta');
               final response = await http.get(Uri.parse(ruta));
+              print('Respuesta de $ruta: Código ${response.statusCode}');
               
               if (response.statusCode == 200) {
                 data = utf8.decode(response.bodyBytes);
-                print("CSV cargado desde $ruta correctamente");
+                print("CSV cargado desde $ruta correctamente (${data.length} bytes)");
+                
+                // Mostrar las primeras líneas del CSV para depuración
+                print("Primeras líneas del CSV:");
+                final lineas = data.split('\n').take(3).toList();
+                lineas.forEach((linea) => print('  $linea'));
                 
                 try {
                   List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
