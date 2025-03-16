@@ -26,6 +26,12 @@ jobs:
         with:
           fetch-depth: 0
       
+      # Configurar Git
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -44,7 +50,7 @@ jobs:
           ls -la build/web/
           
           # Asegurar que el manifest.json esté en la carpeta correcta
-          cp -f web/manifest.json build/web/
+          cp -f web/manifest.json build/web/ || true
           
           # Verificar que flutter_bootstrap.js existe
           if [ ! -f "build/web/flutter_bootstrap.js" ]; then
@@ -52,7 +58,7 @@ jobs:
           fi
           
           # Copiar el CSV
-          cp -f MATERNO-2025.csv build/web/
+          cp -f MATERNO-2025.csv build/web/ || true
           mkdir -p build/web/assets
           cp -f assets/MATERNO-2025.csv build/web/assets/ || true
           
@@ -62,13 +68,10 @@ jobs:
           # Listar archivos para verificar
           echo "Contenido de build/web:"
           ls -la build/web/
-          
-          # Crear archivo .nojekyll para evitar procesamiento Jekyll
-          touch build/web/.nojekyll
         
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          force_orphan: true
+          folder: build/web
+          branch: gh-pages
+          clean: true
