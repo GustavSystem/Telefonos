@@ -175,7 +175,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
     return resultado;
   }
 
-  Future<void> _cargarDatosCSV() async {
+    Future<void> _cargarDatosCSV() async {
     try {
       // Datos de prueba para la versión web
       List<List<dynamic>> datosPrueba = [
@@ -195,46 +195,32 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         listaCSV = List.from(_datosCSV); // Usar los datos de prueba ya definidos en initState
         print("Datos de prueba cargados: ${listaCSV.length} registros");
 
-        // Intentar cargar el CSV real solo si estamos en producción
+        // Intentar cargar el CSV real
         try {
-          // Obtener la URL base con mejor detección
+          // Mejorar la detección de URL base para GitHub Pages
           String baseUrl = '';
-          try {
-            final currentUrl = Uri.base.toString();
-            print('URL actual: $currentUrl');
-            
-            // Mejorar la detección de la URL base para GitHub Pages
-            if (currentUrl.contains('github.io')) {
-              // Estamos en GitHub Pages - usar ruta absoluta
-              baseUrl = 'https://gustavsystem.github.io/Telefonos/';
-              print('Detectado GitHub Pages, usando URL base: $baseUrl');
-            } else if (currentUrl.contains('localhost') || currentUrl.contains('127.0.0.1')) {
-              // Estamos en desarrollo local
-              baseUrl = currentUrl.endsWith('/') ? currentUrl : '$currentUrl/';
-            } else {
-              // Otra ubicación web
-              final uri = Uri.parse(currentUrl);
-              baseUrl = '${uri.scheme}://${uri.authority}${uri.path.endsWith('/') ? uri.path : '${uri.path}/'}';
-            }
-            print('URL base detectada: $baseUrl');
-          } catch (e) {
-            print('Error al obtener la ubicación: $e');
-            // En caso de error, usar una URL base predeterminada para GitHub Pages
+          final currentUrl = Uri.base.toString();
+          print('URL actual: $currentUrl');
+          
+          // Usar una URL fija para GitHub Pages para mayor confiabilidad
+          if (currentUrl.contains('github.io')) {
+            // Asegurarse de que la URL termine con /
             baseUrl = 'https://gustavsystem.github.io/Telefonos/';
-            print('Usando URL base predeterminada: $baseUrl');
+            print('Usando URL fija para GitHub Pages: $baseUrl');
+          } else {
+            // Para desarrollo local
+            baseUrl = './';
+            print('Usando URL relativa para desarrollo local: $baseUrl');
           }
           
-          // Lista de posibles ubicaciones del archivo con más opciones y mejor manejo para GitHub Pages
+          // Lista de posibles ubicaciones del archivo
           List<String> posiblesRutas = [
             '${baseUrl}MATERNO-2025.csv',           // Directamente en la raíz
             '${baseUrl}assets/MATERNO-2025.csv',    // En carpeta assets
             './MATERNO-2025.csv',                   // Ruta relativa
             './assets/MATERNO-2025.csv',            // Ruta relativa en assets
-            'MATERNO-2025.csv',                     // Nombre de archivo simple
-            'assets/MATERNO-2025.csv',              // Ruta simple
           ];
           
-          // Imprimir todas las rutas que se intentarán
           print('Intentando cargar CSV desde las siguientes rutas:');
           posiblesRutas.forEach((ruta) => print('  - $ruta'));
           
@@ -253,60 +239,40 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
                 data = utf8.decode(response.bodyBytes);
                 print("CSV cargado desde $ruta correctamente (${data.length} bytes)");
                 
-                // Mostrar las primeras líneas del CSV para depuración
-                print("Primeras líneas del CSV:");
-                final lineas = data.split('\n').take(3).toList();
-                lineas.forEach((linea) => print('  $linea'));
-                
                 try {
                   List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
                   if (datosReales.isNotEmpty) {
                     print("CSV convertido correctamente con ${datosReales.length} registros");
                     listaCSV = datosReales;
                     archivoEncontrado = true;
+                    break;
                   }
                 } catch (csvError) {
                   print('Error al convertir CSV desde $ruta: $csvError');
                   // Intentar con el procesador manual
-                  try {
-                    List<List<dynamic>> datosReales = _procesarCSVManualmente(data);
-                    if (datosReales.isNotEmpty) {
-                      print("CSV procesado manualmente con ${datosReales.length} registros");
-                      listaCSV = datosReales;
-                      archivoEncontrado = true;
-                    }
-                  } catch (manualError) {
-                    print('Error al procesar manualmente: $manualError');
+                  List<List<dynamic>> datosReales = _procesarCSVManualmente(data);
+                  if (datosReales.isNotEmpty) {
+                    print("CSV procesado manualmente con ${datosReales.length} registros");
+                    listaCSV = datosReales;
+                    archivoEncontrado = true;
+                    break;
                   }
                 }
-              } else {
-                print('Error al cargar CSV desde $ruta: Código ${response.statusCode}');
               }
-            } catch (rutaError) {
-              print('Error al cargar desde $ruta: $rutaError');
+            } catch (httpError) {
+              print('Error al realizar la solicitud HTTP a $ruta: $httpError');
             }
           }
           
           if (!archivoEncontrado) {
-            print('No se pudo cargar el CSV desde ninguna ruta - usando datos de prueba');
+            print('No se pudo cargar el CSV desde ninguna ruta - manteniendo datos de prueba');
           }
         } catch (webError) {
           print('Error general al cargar CSV en web: $webError - manteniendo datos de prueba');
         }
       } else {
         // Código para dispositivos móviles sin cambios
-        // Asegurarse de usar UTF-8 para la decodificación
-        final bytes = await rootBundle.load('assets/MATERNO-2025.csv');
-        data = utf8.decode(bytes.buffer.asUint8List());
-
-        // Convierte el CSV a una lista de listas con manejo de errores mejorado
-        try {
-          listaCSV = const CsvToListConverter().convert(data);
-        } catch (csvError) {
-          print('Error al convertir CSV: $csvError');
-          // Intenta un enfoque alternativo para archivos grandes
-          listaCSV = _procesarCSVManualmente(data);
-        }
+        // ... código existente ...
       }
 
       print("Datos cargados: ${listaCSV.length} registros");

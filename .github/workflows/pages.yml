@@ -3,64 +3,32 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v2
         with:
-          submodules: false
-          fetch-depth: 0
-      
-      # Eliminar cualquier referencia a submódulos
-      - name: Remove submodule references
-        run: |
-          if [ -d "telefonos-gh-pages" ]; then
-            rm -rf telefonos-gh-pages
-          fi
-          if [ -f ".gitmodules" ]; then
-            rm .gitmodules
-          fi
-          git config --local --unset-all submodule.telefonos-gh-pages.url || true
-          git config --local --unset-all submodule.telefonos-gh-pages.active || true
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
+          flutter-version: '3.10.0'
           channel: 'stable'
       
-      - name: Get dependencies
+      - name: Install dependencies
         run: flutter pub get
-      
+        
       - name: Build web
+        run: flutter build web --release --base-href=/Telefonos/
+        
+      - name: Copy CSV file to build
         run: |
-          flutter build web --release --base-href /Telefonos/
-          # Verificar que los archivos existen en la carpeta build/web
-          ls -la build/web/
-      
-      # Paso adicional para verificar y corregir rutas
-      - name: Verify and fix paths
-        run: |
-          # Verificar si el archivo index.html existe
-          if [ -f "build/web/index.html" ]; then
-            echo "Archivo index.html encontrado"
-            # Asegurarse de que las rutas en index.html son correctas
-            sed -i 's|href="/|href="/Telefonos/|g' build/web/index.html
-            sed -i 's|src="/|src="/Telefonos/|g' build/web/index.html
-            # Excluir las que ya tienen la ruta correcta
-            sed -i 's|href="/Telefonos/Telefonos/|href="/Telefonos/|g' build/web/index.html
-            sed -i 's|src="/Telefonos/Telefonos/|src="/Telefonos/|g' build/web/index.html
-          else
-            echo "Error: No se encontró el archivo index.html"
-            exit 1
-          fi
-      
+          mkdir -p build/web/assets
+          cp MATERNO-2025.csv build/web/
+          cp MATERNO-2025.csv build/web/assets/
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          force_orphan: true  # Esto crea una rama gh-pages nueva sin historial
