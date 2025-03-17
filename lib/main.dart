@@ -175,7 +175,10 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
       List<List<dynamic>> datosPrueba = [
         ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 1", "ADMISIÓN", "5001", "922123456"],
         ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 1", "URGENCIAS", "5002", "922123457"],
-        // ... resto de datos de prueba ...
+        ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "CONSULTAS", "5003", "922123458"],
+        ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "QUIRÓFANOS", "5004", "922123459"],
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA BAJA", "INFORMACIÓN", "5005", "922123460"],
+        // Añadir más datos de prueba para asegurar que hay suficientes registros
       ];
 
       String data;
@@ -186,7 +189,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         print("Ejecutando en entorno web - usando datos de prueba iniciales");
 
         // Usar datos de prueba para la versión web inicialmente
-        listaCSV = List.from(_datosCSV); // Usar los datos de prueba ya definidos en initState
+        listaCSV = List.from(datosPrueba); // Usar los datos de prueba definidos arriba
         print("Datos de prueba cargados: ${listaCSV.length} registros");
 
         // Intentar cargar el CSV real
@@ -232,6 +235,9 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
               if (response.statusCode == 200) {
                 data = utf8.decode(response.bodyBytes);
                 print("CSV cargado desde $ruta correctamente (${data.length} bytes)");
+                print("Primeras líneas del CSV:");
+                final lineas = data.split('\n').take(3).toList();
+                lineas.forEach((linea) => print('  $linea'));
                 
                 try {
                   List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
@@ -242,7 +248,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
                     break;
                   }
                 } catch (csvError) {
-                  print('Error al convertir CSV desde $ruta: $csvError');
+                  print('Error al convertir CSV: $csvError');
                   // Intentar con el procesador manual
                   List<List<dynamic>> datosReales = _procesarCSVManualmente(data);
                   if (datosReales.isNotEmpty) {
@@ -270,6 +276,12 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
       }
 
       print("Datos cargados: ${listaCSV.length} registros");
+      
+      // Asegurarse de que los datos no estén vacíos
+      if (listaCSV.isEmpty) {
+        print("¡ADVERTENCIA! No se cargaron datos. Usando datos de prueba.");
+        listaCSV = datosPrueba;
+      }
 
       setState(() {
         _datosCSV = listaCSV;
@@ -282,6 +294,17 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
 
         _cargando = false;
       });
+      
+      // Imprimir información sobre los datos cargados para depuración
+      print("Datos finales: ${_datosCSV.length} registros totales");
+      print("Datos filtrados: ${_datosFiltrados.length} registros");
+      print("Datos mostrados: ${_datosMostrados.length} registros");
+      
+      // Mostrar los primeros registros para verificar
+      if (_datosMostrados.isNotEmpty) {
+        print("Primer registro mostrado: ${_datosMostrados[0]}");
+      }
+      
     } catch (e) {
       print('🔥 Error al cargar CSV: $e');
       setState(() {
