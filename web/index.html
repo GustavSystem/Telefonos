@@ -40,7 +40,11 @@
       // Asegurarse de que no hay doble barra y la URL es absoluta para GitHub Pages
       return basePath + path;
     }
-  
+    
+    // Configuración global para Flutter
+    window.flutterWebRenderer = "html";
+    window.assetBase = getBasePath();
+    
     // Cargar manifest.json con la ruta correcta
     document.write('<link rel="manifest" href="' + loadResource('manifest.json') + '">');
   </script>
