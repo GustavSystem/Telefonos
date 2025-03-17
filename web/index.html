@@ -23,14 +23,8 @@
     function getBasePath() {
       // Verificar si estamos en GitHub Pages
       if (window.location.hostname.includes('github.io')) {
-        // Asegurarse de que la ruta base termina con una barra
-        var path = '/Telefonos/';
-        // Verificar si ya estamos en la URL correcta
-        if (window.location.pathname.startsWith('/Telefonos/')) {
-          // Ya estamos en la ruta correcta, usar ruta relativa
-          path = '';
-        }
-        return path;
+        // Siempre usar la ruta completa para GitHub Pages
+        return '/Telefonos/';
       }
       // Para pruebas locales, usar ruta raíz
       return '/';
@@ -43,7 +37,7 @@
       if (path.startsWith('/')) {
         path = path.substring(1);
       }
-      // Asegurarse de que no hay doble barra
+      // Asegurarse de que no hay doble barra y la URL es absoluta para GitHub Pages
       return basePath + path;
     }
   
@@ -60,68 +54,99 @@
   <script>
     document.write('<script src="' + loadResource('flutter.js') + '" defer><\/script>');
   </script>
-</head>
-<body>
-  <!-- Indicador de carga para mejorar la experiencia del usuario -->
-  <div id="loading" style="
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: white;
-    font-family: Arial, sans-serif;">
-    <div style="text-align: center;">
-      <p>Cargando aplicación...</p>
-      <progress></progress>
-    </div>
-  </div>
-
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Asegurarse de que _flutter esté definido
-      var _flutter;
-      
-      // Intentar obtener _flutter con manejo de errores
-      var maxAttempts = 10;
-      var attempts = 0;
-      
-      function tryInitFlutter() {
-        if (window._flutter) {
-          _flutter = window._flutter;
-          initFlutterApp();
-        } else if (attempts < maxAttempts) {
-          attempts++;
-          console.log('Intentando cargar Flutter... intento ' + attempts);
-          setTimeout(tryInitFlutter, 500);
-        } else {
-          console.error('No se pudo cargar Flutter después de ' + maxAttempts + ' intentos');
-          document.getElementById('loading').innerHTML = '<div style="text-align: center; color: red;"><p>Error al cargar la aplicación</p><p>Por favor, intente recargar la página</p></div>';
-        }
-      }
-      
-      function initFlutterApp() {
-        // Download main.dart.js
-        _flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: serviceWorkerVersion,
-          },
-          onEntrypointLoaded: function(engineInitializer) {
-            engineInitializer.initializeEngine().then(function(appRunner) {
-              // Ocultar el indicador de carga cuando la app esté lista
-              document.getElementById('loading').style.display = 'none';
-              appRunner.runApp();
+  
+  <!-- Script adicional para corregir rutas de recursos -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        // Verificar si estamos en GitHub Pages
+        if (window.location.hostname.includes('github.io')) {
+          // Corregir rutas de recursos que podrían estar mal configuradas
+          var basePath = '/Telefonos/';
+          
+          // Función para corregir rutas en elementos
+          function fixResourcePaths(selector, attribute) {
+            var elements = document.querySelectorAll(selector);
+            elements.forEach(function(el) {
+              var path = el.getAttribute(attribute);
+              if (path && !path.startsWith(basePath) && !path.startsWith('http') && !path.startsWith('//')) {
+                // Si la ruta no comienza con la ruta base y no es una URL absoluta
+                if (path.startsWith('/')) {
+                  path = path.substring(1); // Eliminar barra inicial
+                }
+                el.setAttribute(attribute, basePath + path);
+              }
             });
           }
-        });
-      }
-      
-      // Iniciar el proceso de carga
-      tryInitFlutter();
-    });
-  </script>
-</body>
-</html>
+          
+          // Corregir rutas en diferentes tipos de elementos
+          fixResourcePaths('script[src]', 'src');
+          fixResourcePaths('link[href]', 'href');
+          fixResourcePaths('img[src]', 'src');
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <!-- Indicador de carga para mejorar la experiencia del usuario -->
+    <div id="loading" style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: white;
+      font-family: Arial, sans-serif;">
+      <div style="text-align: center;">
+        <p>Cargando aplicación...</p>
+        <progress></progress>
+      </div>
+    </div>
+  
+    <script>
+      window.addEventListener('load', function(ev) {
+        // Asegurarse de que _flutter esté definido
+        var _flutter;
+        
+        // Intentar obtener _flutter con manejo de errores
+        var maxAttempts = 10;
+        var attempts = 0;
+        
+        function tryInitFlutter() {
+          if (window._flutter) {
+            _flutter = window._flutter;
+            initFlutterApp();
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            console.log('Intentando cargar Flutter... intento ' + attempts);
+            setTimeout(tryInitFlutter, 500);
+          } else {
+            console.error('No se pudo cargar Flutter después de ' + maxAttempts + ' intentos');
+            document.getElementById('loading').innerHTML = '<div style="text-align: center; color: red;"><p>Error al cargar la aplicación</p><p>Por favor, intente recargar la página</p></div>';
+          }
+        }
+        
+        function initFlutterApp() {
+          // Download main.dart.js
+          _flutter.loader.loadEntrypoint({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            },
+            onEntrypointLoaded: function(engineInitializer) {
+              engineInitializer.initializeEngine().then(function(appRunner) {
+                // Ocultar el indicador de carga cuando la app esté lista
+                document.getElementById('loading').style.display = 'none';
+                appRunner.runApp();
+              });
+            }
+          });
+        }
+        
+        // Iniciar el proceso de carga
+        tryInitFlutter();
+      });
+    </script>
+  </body>
+  </html>
