@@ -17,7 +17,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <!-- Script para corregir rutas en GitHub Pages -->
+  <!-- Script para corregir rutas en GitHub Pages y pruebas locales -->
   <script>
     // Función para determinar la ruta base correcta
     function getBasePath() {
@@ -25,6 +25,7 @@
       if (window.location.hostname.includes('github.io')) {
         return '/Telefonos/';
       }
+      // Para pruebas locales, usar ruta raíz
       return '/';
     }
 
