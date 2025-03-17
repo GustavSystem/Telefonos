@@ -28,7 +28,7 @@
       // Para pruebas locales, usar ruta raíz
       return '/';
     }
-
+  
     // Función para cargar recursos con la ruta correcta
     function loadResource(path) {
       var basePath = getBasePath();
@@ -36,9 +36,10 @@
       if (path.startsWith('/')) {
         path = path.substring(1);
       }
+      // Asegurarse de que no hay doble barra
       return basePath + path;
     }
-
+  
     // Cargar manifest.json con la ruta correcta
     document.write('<link rel="manifest" href="' + loadResource('manifest.json') + '">');
   </script>
