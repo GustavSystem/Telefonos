@@ -178,20 +178,35 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "CONSULTAS", "5003", "922123458"],
         ["MATERNO", "EDIFICIO PRINCIPAL", "PLANTA 2", "QUIRÓFANOS", "5004", "922123459"],
         ["MATERNO", "EDIFICIO ANEXO", "PLANTA BAJA", "INFORMACIÓN", "5005", "922123460"],
-        // Añadir más datos de prueba para asegurar que hay suficientes registros
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA 1", "ADMINISTRACIÓN", "5006", "922123461"],
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA 2", "DIRECCIÓN", "5007", "922123462"],
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA 3", "RECURSOS HUMANOS", "5008", "922123463"],
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA 4", "CONTABILIDAD", "5009", "922123464"],
+        ["MATERNO", "EDIFICIO ANEXO", "PLANTA 5", "SISTEMAS", "5010", "922123465"],
       ];
 
-      String data;
-      List<List<dynamic>> listaCSV = [];
+      String data = '';
+      List<List<dynamic>> csvData = []; // Cambiado de listaCSV a csvData
 
       // Manejo específico para web
       if (kIsWeb) {
-        print("Ejecutando en entorno web - usando datos de prueba iniciales");
-
-        // Usar datos de prueba para la versión web inicialmente
-        listaCSV = List.from(datosPrueba); // Usar los datos de prueba definidos arriba
-        print("Datos de prueba cargados: ${listaCSV.length} registros");
-
+        print("Ejecutando en entorno web - usando datos de prueba");
+        
+        // Usar datos de prueba para la versión web
+        setState(() {
+          _datosCSV = List.from(datosPrueba);
+          _datosFiltrados = List.from(_datosCSV);
+          
+          // Mostrar TODOS los registros de una vez, sin paginación inicial
+          _datosMostrados = List.from(_datosFiltrados);
+          
+          _cargando = false;
+        });
+        
+        print("Datos de prueba cargados: ${_datosCSV.length} registros");
+        print("Datos filtrados: ${_datosFiltrados.length} registros");
+        print("Datos mostrados: ${_datosMostrados.length} registros");
+        
         // Intentar cargar el CSV real
         try {
           // Mejorar la detección de URL base para GitHub Pages
@@ -243,7 +258,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
                   List<List<dynamic>> datosReales = const CsvToListConverter().convert(data);
                   if (datosReales.isNotEmpty) {
                     print("CSV convertido correctamente con ${datosReales.length} registros");
-                    listaCSV = datosReales;
+                    csvData = datosReales; // Cambiado de listaCSV a csvData
                     archivoEncontrado = true;
                     break;
                   }
@@ -253,7 +268,7 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
                   List<List<dynamic>> datosReales = _procesarCSVManualmente(data);
                   if (datosReales.isNotEmpty) {
                     print("CSV procesado manualmente con ${datosReales.length} registros");
-                    listaCSV = datosReales;
+                    csvData = datosReales; // Cambiado de listaCSV a csvData
                     archivoEncontrado = true;
                     break;
                   }
@@ -275,17 +290,17 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
         // ... código existente ...
       }
 
-      print("Datos cargados: ${listaCSV.length} registros");
+      print("Datos cargados: ${csvData.length} registros"); // Cambiado de listaCSV a csvData
       
       // Asegurarse de que los datos no estén vacíos
-      if (listaCSV.isEmpty) {
+      if (csvData.isEmpty) { // Cambiado de listaCSV a csvData
         print("¡ADVERTENCIA! No se cargaron datos. Usando datos de prueba.");
-        listaCSV = datosPrueba;
+        csvData = datosPrueba; // Cambiado de listaCSV a csvData
       }
 
       setState(() {
-        _datosCSV = listaCSV;
-        _datosFiltrados = listaCSV;
+        _datosCSV = csvData; // Cambiado de listaCSV a csvData
+        _datosFiltrados = csvData; // Cambiado de listaCSV a csvData
 
         // Inicializar la lista de datos mostrados con los primeros registros
         _datosMostrados = _datosFiltrados.length > _registrosPorCarga
