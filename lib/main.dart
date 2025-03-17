@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:math' show min;
 import 'package:http/http.dart' as http;
 import 'dart:ui';
-import 'universal_io/io.dart';
 
 // Asegúrate de que el método main esté configurado correctamente
 void main() {
@@ -611,17 +610,9 @@ class _DirectorioTelefonicoState extends State<DirectorioTelefonico> {
       final directory = await getApplicationDocumentsDirectory();
       final path = '${directory.path}/$NOMBRE_ARCHIVO';
       
-      // Modificación para corregir el error
-      if (kIsWeb) {
-        // En web no podemos guardar directamente en el sistema de archivos
-        print('Guardado en web no implementado');
-      } else {
-        final file = File(path);
-        // Usar UTF-8 para la codificación al guardar
-        await file.writeAsBytes(utf8.encode(csv));
-        print('Datos guardados en: $path');
-      }
-
+      final file = File(path);
+      // Usar UTF-8 para la codificación al guardar
+      await file.writeAsBytes(utf8.encode(csv));
       print('Datos guardados en: $path');
     } catch (e) {
       print('Error al guardar CSV: $e');
