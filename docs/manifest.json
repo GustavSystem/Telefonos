@@ -1,11 +1,11 @@
 {
     "name": "telefonos_hospital_flutter",
-    "short_name": "telefonos_hospital_flutter",
+    "short_name": "telefonos",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Directorio telefónico para el Hospital Materno Infantil e Insular",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
