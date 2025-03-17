@@ -11,7 +11,9 @@ import 'package:http/http.dart' as http;
 import 'dart:ui';
 import 'universal_io/io.dart';
 
+// Asegúrate de que el método main esté configurado correctamente
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -21,21 +23,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Directorio Telefónico',
-      locale: const Locale('es', 'ES'),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('es', 'ES'),
-      ],
+      title: 'Directorio Telefónico Hospital',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const DirectorioTelefonico(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

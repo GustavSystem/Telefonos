@@ -25,6 +25,11 @@
     // Añadir información de depuración
     console.log("Iniciando aplicación de directorio telefónico");
     console.log("URL base: " + window.location.href);
+    
+    // Verificar si estamos en GitHub Pages
+    if (window.location.hostname.includes('github.io')) {
+      console.log("Detectado entorno GitHub Pages");
+    }
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
@@ -46,12 +51,28 @@
       <h2>Directorio Telefónico Hospital</h2>
       <p>Cargando aplicación...</p>
       <progress></progress>
+      <div id="error-message" style="color: red; margin-top: 20px;"></div>
     </div>
   </div>
 
   <script>
+    // Configurar un tiempo de espera para detectar problemas de carga
+    var loadTimeout = setTimeout(function() {
+      document.getElementById('error-message').innerHTML = 
+        "La aplicación está tardando demasiado en cargar. Posible problema con main.dart.js.<br>" +
+        "Intente recargar la página o verifique la consola para más detalles.";
+    }, 10000);
+    
     window.addEventListener('load', function(ev) {
       console.log("Evento load disparado");
+      
+      // Verificar si flutter.js se cargó correctamente
+      if (typeof _flutter === 'undefined') {
+        console.error("Error: flutter.js no se cargó correctamente");
+        document.getElementById('error-message').innerHTML = 
+          "Error: No se pudo cargar flutter.js. Verifique la consola para más detalles.";
+        return;
+      }
       
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
@@ -60,6 +81,8 @@
         },
         onEntrypointLoaded: function(engineInitializer) {
           console.log("Flutter engine inicializado");
+          clearTimeout(loadTimeout); // Cancelar el timeout
+          
           engineInitializer.initializeEngine().then(function(appRunner) {
             console.log("Aplicación Flutter lista para ejecutarse");
             // Ocultar el indicador de carga
@@ -69,6 +92,11 @@
             console.error("Error al inicializar el motor de Flutter:", error);
             document.getElementById('loading').innerHTML = '<div style="text-align: center; color: red;"><h2>Error</h2><p>No se pudo inicializar la aplicación</p><p>' + error + '</p></div>';
           });
+        },
+        onEntrypointLoadException: function(error) {
+          console.error("Error al cargar el punto de entrada:", error);
+          document.getElementById('error-message').innerHTML = 
+            "Error al cargar main.dart.js: " + error;
         }
       });
     });
