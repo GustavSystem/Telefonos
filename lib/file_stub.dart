@@ -1,29 +1,26 @@
-// Este archivo proporciona una implementación vacía de File para web
+// Stub para File en entorno web
 class File {
   final String path;
   
   File(this.path);
   
-  // Métodos comunes que podrías necesitar
+  Future<File> writeAsBytes(List<int> bytes) async {
+    print('Escritura de archivo simulada en web: $path');
+    return this;
+  }
+  
   Future<bool> exists() async {
     return false;
   }
+}
+
+// Stub para Directory en entorno web
+class Directory {
+  final String path;
   
-  Future<List<int>> readAsBytes() async {
-    return [];
+  Directory(this.path);
+  
+  static Future<Directory> getApplicationDocumentsDirectory() async {
+    return Directory('/virtual/path');
   }
-  
-  Future<String> readAsString() async {
-    return '';
-  }
-  
-  Future<File> writeAsBytes(List<int> bytes) async {
-    return this;
-  }
-  
-  Future<File> writeAsString(String contents) async {
-    return this;
-  }
-  
-  // Agrega aquí otros métodos que necesites
 }

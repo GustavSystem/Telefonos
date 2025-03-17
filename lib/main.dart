@@ -4,15 +4,14 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'dart:io' if (dart.library.html) 'package:telefonos_hospital_flutter/file_stub.dart';
+// En la parte superior del archivo, modifica las importaciones:
+import 'package:telefonos_hospital_flutter/file_stub.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:math' show min;
 import 'package:http/http.dart' as http;
 import 'dart:ui';
 
-// Asegúrate de que el método main esté configurado correctamente
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -22,12 +21,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Directorio Telefónico Hospital',
+      title: 'Directorio Telefónico',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const DirectorioTelefonico(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', 'ES'),
+      ],
       debugShowCheckedModeBanner: false,
     );
   }
