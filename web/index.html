@@ -21,21 +21,53 @@
   <script>
     // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
+    
+    // Añadir información de depuración
+    console.log("Iniciando aplicación de directorio telefónico");
+    console.log("URL base: " + window.location.href);
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
 </head>
 <body>
+  <!-- Añadir un indicador de carga visible -->
+  <div id="loading" style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    font-family: Arial, sans-serif;">
+    <div style="text-align: center;">
+      <h2>Directorio Telefónico Hospital</h2>
+      <p>Cargando aplicación...</p>
+      <progress></progress>
+    </div>
+  </div>
+
   <script>
     window.addEventListener('load', function(ev) {
+      console.log("Evento load disparado");
+      
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
+          console.log("Flutter engine inicializado");
           engineInitializer.initializeEngine().then(function(appRunner) {
+            console.log("Aplicación Flutter lista para ejecutarse");
+            // Ocultar el indicador de carga
+            document.getElementById('loading').style.display = 'none';
             appRunner.runApp();
+          }).catch(function(error) {
+            console.error("Error al inicializar el motor de Flutter:", error);
+            document.getElementById('loading').innerHTML = '<div style="text-align: center; color: red;"><h2>Error</h2><p>No se pudo inicializar la aplicación</p><p>' + error + '</p></div>';
           });
         }
       });
